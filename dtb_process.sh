@@ -15,16 +15,16 @@ cleanup() {
 
 abort() {
   echo >&2 '
-***************
-*** ABORTED ***
-***************
+*******************************
+*********** NOTICE ************
+*******************************
 '
   echo "$1" >&2
   cleanup
   exit $((1))
 }
 
-set -- $(getopt -q icu:b: "$@")
+set -- $(getopt -q icfu:b: "$@")
 while [ -n "$1" ]; do
   case "$1" in
   -i)
@@ -34,6 +34,10 @@ while [ -n "$1" ]; do
   -c)
     echo "found -c option: no clean up workspace after script finished"
     clean="0"
+    ;;
+  -f)
+    echo "found -f option: force backup boot.img"
+    rm -f /sdcard/bootimage/.init
     ;;
   -u)
     param=$(echo $2 | sed 's/[^0-9]//g')
