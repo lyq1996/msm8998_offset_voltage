@@ -32,7 +32,7 @@ while [ -n "$1" ]; do
     install="1"
     ;;
   -c)
-    echo "found -c option: no clean up workspace afer script finished"
+    echo "found -c option: no clean up workspace after script finished"
     clean="0"
     ;;
   -u)
