@@ -7,6 +7,7 @@ dtc=./prebuilt/dtc
 clean="1"
 install="0"
 voffset=$((100000))
+voffset_increase=$((0))
 
 cleanup() {
   $magisk_boot cleanup
@@ -23,7 +24,7 @@ abort() {
   exit $((1))
 }
 
-set -- $(getopt -q icu: "$@")
+set -- $(getopt -q icu:b: "$@")
 while [ -n "$1" ]; do
   case "$1" in
   -i)
@@ -39,8 +40,17 @@ while [ -n "$1" ]; do
     if [ "$param" -gt $((125)) ] || [ "$param" -lt $((0)) ]; then
       abort "! cpu voltage offset too low or too high"
     fi
-    echo "voltage offset: -$param mv"
+    echo "voltage offset decrease: -$param mv"
     voffset=$(($param * 1000))
+    shift
+    ;;
+  -b)
+    param=$(echo $2 | sed 's/[^0-9]//g')
+    if [ "$param" -gt $((125)) ] || [ "$param" -lt $((0)) ]; then
+      abort "! cpu voltage offset too low or too high"
+    fi
+    echo "voltage offset increase: +$param mv"
+    voffset_increase=$(($param * 1000))
     shift
     ;;
   --)
@@ -59,12 +69,15 @@ done
 # ui_print "- backup origin boot.img to /sdcard/bootimage/boot.img"
 dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
 mkdir -p /sdcard/bootimage
-cp ./boot.img /sdcard/bootimage/boot-$(date "+%Y-%m-%d-%H-%M-%S").img
+if [ ! -f "/sdcard/bootimage/.init" ]; then
+cp ./boot.img /sdcard/bootimage/boot-backup-$(date "+%Y-%m-%d-%H-%M-%S").img
+touch /sdcard/bootimage/.init
+fi
 
 # step 2 unpack boot.img
 
 # ui_print "- unpacking boot.img"
-$magisk_boot unpack boot.img >/dev/null
+$magisk_boot unpack boot.img
 case $? in
 0)
   echo "unpacked boot.img successful"
@@ -99,9 +112,10 @@ while [ $i -lt $dtb_count ]; do
   dts_msm_id=$(cat kernel_dtb_$i.dts | grep qcom,msm-id | sed -e 's/[\t]*qcom,msm-id = <//g' | sed 's/>;//g')
   echo "kernel_dtb_$i.dts board_id: $dts_board_id, msm_id: $dts_msm_id"
   if [ "$dts_board_id" = "$board_id" ] && [ "$dts_msm_id" = "$msm_id" ]; then
-    echo "got it, ready to patch kernel_dtb_$i.dts"
+    echo "got it, let's patch kernel_dtb_$i.dts"
     break
   fi
+  rm -f kernel_dtb_$i.dts
   i=$((i + 1))
 done
 case $i in
@@ -141,7 +155,7 @@ while [ $j -le $o_line ]; do # remember
   echo "patching $cricle_adjust ..."
   # echo "$voffset"
   # Linux x86 integer takes up 8 bytes, so it will display as 0xfffffffffff0bdc0, don't worry its correct in arm-linux.
-  new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - ot,$2 - ot,$3 - ot,$4 - ot)}' ot="$voffset") # really rubbish
+  new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase") # really rubbish
   sed -i "s/$cricle_adjust/$new_v/g" filebuff_s
   ori_line=$(cat filebuff_o | awk "NR==$j")
   mod_line=$(cat filebuff_s | awk "NR==$j")
@@ -180,7 +194,7 @@ fi
 
 # step 8 packing boot.img
 echo "repacking boot.img..."
-$magisk_boot repack boot.img >/dev/null
+$magisk_boot repack boot.img
 case $? in
 0)
   echo "packed boot.img successful"
