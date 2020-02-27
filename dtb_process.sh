@@ -8,6 +8,11 @@ clean="1"
 install="0"
 voffset=$((100000))
 
+cleanup() {
+  $magisk_boot cleanup
+  rm boot.img
+}
+
 abort() {
   echo >&2 '
 ***************
@@ -16,12 +21,7 @@ abort() {
 '
   echo "$1" >&2
   cleanup
-  exit 1
-}
-
-cleanup() {
-  $magisk_boot cleanup
-  rm boot.img
+  exit $((1))
 }
 
 set -- $(getopt -q icu: "$@")
@@ -112,7 +112,9 @@ esac
 
 # ui_print "- !! default 100mv"
 # remove gfx_corner open-loop-voltage-fuse-adjustment, i dont know what it is
-cat kernel_dtb-$i.dts | sed '/regulator-name = "gfx_corner";/,+25d' | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
+gfx_cline=`cat kernel_dtb-$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g'`
+gfx_cline_=$(($gfx_cline + 25))
+cat kernel_dtb-$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
 cat kernel_dtb-$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
 cp filebuff_o filebuff_s
 j=1
@@ -163,7 +165,9 @@ fi
 i=0
 echo "generating new kernel_dtb.."
 echo "" >kernel_dtb
+echo "dtb_count: $dtb_count"
 while [ $i -lt $dtb_count ]; do
+  echo "i: $i"
   cat kernel_dtb-$i >>kernel_dtb
   i=$((i + 1))
 done
