@@ -151,7 +151,6 @@ while [ $j -le $o_line ]; do # remember
   j=$((j + 1))
 done
 echo "patched done."
-rm -f filebuff_o filebuff_s
 
 # step 6 compile dts to dtb
 $dtc -q -I dts -O dtb kernel_dtb_$i.dts -o kernel_dtb-$i
@@ -173,6 +172,7 @@ done
 if [ "$clean" = "1" ]; then
   echo "removing useless kernetl_dtb-*.."
   rm -f kernel_dtb-*
+  rm -f filebuff_o filebuff_s
 fi
 
 # step 8 packing boot.img
