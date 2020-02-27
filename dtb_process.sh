@@ -92,12 +92,12 @@ echo "device board_id: $board_id, msm_id: $msm_id"
 
 i=0
 while [ $i -lt $dtb_count ]; do
-  $dtc -q -I dtb -O dts kernel_dtb-$i -o kernel_dtb-$i.dts
-  dts_board_id=$(cat kernel_dtb-$i.dts | grep board | sed -e 's/[\t]*qcom,board-id = <//g' | sed 's/>;//g')
-  dts_msm_id=$(cat kernel_dtb-$i.dts | grep qcom,msm-id | sed -e 's/[\t]*qcom,msm-id = <//g' | sed 's/>;//g')
-  echo "kernel_dtb-$i.dts board_id: $dts_board_id, msm_id: $dts_msm_id"
+  $dtc -q -I dtb -O dts kernel_dtb-$i -o kernel_dtb_$i.dts
+  dts_board_id=$(cat kernel_dtb_$i.dts | grep board | sed -e 's/[\t]*qcom,board-id = <//g' | sed 's/>;//g')
+  dts_msm_id=$(cat kernel_dtb_$i.dts | grep qcom,msm-id | sed -e 's/[\t]*qcom,msm-id = <//g' | sed 's/>;//g')
+  echo "kernel_dtb_$i.dts board_id: $dts_board_id, msm_id: $dts_msm_id"
   if [ "$dts_board_id" = "$board_id" ] && [ "$dts_msm_id" = "$msm_id" ]; then
-    echo "got it, ready to patch kernel_dtb-$i.dts"
+    echo "got it, ready to patch kernel_dtb_$i.dts"
     break
   fi
   i=$((i + 1))
@@ -112,10 +112,10 @@ esac
 
 # ui_print "- !! default 100mv"
 # remove gfx_corner open-loop-voltage-fuse-adjustment, i dont know what it is
-gfx_cline=`cat kernel_dtb-$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g'`
+gfx_cline=`cat kernel_dtb_$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g'`
 gfx_cline_=$(($gfx_cline + 25))
-cat kernel_dtb-$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
-cat kernel_dtb-$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
+cat kernel_dtb_$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
+cat kernel_dtb_$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
 cp filebuff_o filebuff_s
 j=1
 o_line=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | wc -l)
@@ -143,10 +143,10 @@ while [ $j -le $o_line ]; do # remember
   sed -i "s/$cricle_adjust/$new_v/g" filebuff_s
   ori_line=$(cat filebuff_o | awk "NR==$j")
   mod_line=$(cat filebuff_s | awk "NR==$j")
-  sed -i "s/$ori_line/$mod_line/g" kernel_dtb-$i.dts
+  sed -i "s/$ori_line/$mod_line/g" kernel_dtb_$i.dts
   case $i in
   $dtb_count)
-    abort "! Unable to patched kernel_dtb-$i.dts"
+    abort "! Unable to patched kernel_dtb_$i.dts"
     ;;
   esac
   j=$((j + 1))
@@ -155,10 +155,10 @@ echo "patched done."
 rm -f filebuff_o filebuff_s
 
 # step 6 compile dts to dtb
-$dtc -q -I dts -O dtb kernel_dtb-$i.dts -o kernel_dtb-$i
+$dtc -q -I dts -O dtb kernel_dtb_$i.dts -o kernel_dtb-$i
 if [ "$clean" = "1" ]; then
   echo "removing useless kernetl_dtb-*.dis.."
-  rm -f kernel_dtb-*.dts
+  rm -f kernel_dtb_*.dts
 fi
 
 # step 7 generate new dtb
