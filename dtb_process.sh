@@ -64,8 +64,11 @@ cp ./boot.img /sdcard/bootimage/boot-$(date "+%Y-%m-%d-%H-%M-%S").img
 # step 2 unpack boot.img
 
 # ui_print "- unpacking boot.img"
-$magisk_boot unpack boot.img
+$magisk_boot unpack boot.img >/dev/null
 case $? in
+0)
+  echo "unpacked boot.img successful"
+  ;;
 1)
   abort "! Unsupported/Unknown image format"
   ;;
@@ -111,7 +114,7 @@ esac
 
 # ui_print "- !! default 100mv"
 # remove gfx_corner open-loop-voltage-fuse-adjustment, i dont know what it is
-gfx_cline=`cat kernel_dtb_$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g'`
+gfx_cline=$(cat kernel_dtb_$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g')
 gfx_cline_=$(($gfx_cline + 25))
 cat kernel_dtb_$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
 cat kernel_dtb_$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
@@ -162,7 +165,7 @@ fi
 # step 7 generate new dtb
 i=0
 echo "generating new kernel_dtb.."
-echo "" >kernel_dtb
+>kernel_dtb
 echo "dtb_count: $dtb_count"
 while [ $i -lt $dtb_count ]; do
   echo "i: $i"
@@ -177,7 +180,16 @@ fi
 
 # step 8 packing boot.img
 echo "repacking boot.img..."
-$magisk_boot repack boot.img
+$magisk_boot repack boot.img >/dev/null
+case $? in
+0)
+  echo "packed boot.img successful"
+  ;;
+1)
+  abort "! Unsupported/Unknown image format"
+  ;;
+esac
+
 rm -f boot.img
 if [ $install == "1" ]; then
   echo "flashing new boot.."
