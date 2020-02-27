@@ -64,14 +64,22 @@ while [ -n "$1" ]; do
   shift
 done
 
+if [ "$voffset" = "$voffset_increase" ]; then
+  abort "! Forbidden TAOWA !"
+elif (("$voffset" > "$voffset_increase")); then
+  offset_tune=$((10000))
+else
+  offset_tune=$((-10000))
+fi
+
 # step 1 get current boot.img
 
 # ui_print "- backup origin boot.img to /sdcard/bootimage/boot.img"
 dd if=/dev/block/bootdevice/by-name/boot of=./boot.img
 mkdir -p /sdcard/bootimage
 if [ ! -f "/sdcard/bootimage/.init" ]; then
-cp ./boot.img /sdcard/bootimage/boot-backup-$(date "+%Y-%m-%d-%H-%M-%S").img
-touch /sdcard/bootimage/.init
+  cp ./boot.img /sdcard/bootimage/boot-backup-$(date "+%Y-%m-%d-%H-%M-%S").img
+  touch /sdcard/bootimage/.init
 fi
 
 # step 2 unpack boot.img
@@ -131,31 +139,54 @@ esac
 gfx_cline=$(cat kernel_dtb_$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g')
 gfx_cline_=$(($gfx_cline + 25))
 cat kernel_dtb_$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
+cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >>filebuff_o
 cat kernel_dtb_$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
-cp filebuff_o filebuff_s
-j=1
-o_line=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | wc -l)
+cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-closed-loop-voltage-adjustment >>filebuff_o
 
-while [ $j -le $o_line ]; do # remember
+cp filebuff_o filebuff_s
+
+o_line=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | wc -l)
+j=1
+
+while [ $j -le $o_line ]; do
   #echo $j
   open_loop_voltage_=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | awk "NR==$j" | sed 's/\(0x[^ ]* \)\{4\}/&\n/g')
   open_loop_voltage_line=$(echo "$open_loop_voltage_" | wc -l)
   first_line=$(echo "$open_loop_voltage_" | head -n1)
-  z=1
-  while [ $z -le $open_loop_voltage_line ]; do # remember
-    open_loop_voltage_per_line=$(echo "$open_loop_voltage_" | awk "NR==$z")
-    result=$(echo "$first_line" | grep "$open_loop_voltage_per_line")
-    if [ "$result" = "" ]; then
-      echo "$z","$first_line","$open_loop_voltage_per_line"
-      abort "! loop error"
-    fi
-    z=$((z + 1))
-  done
-  cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
-  echo "patching $cricle_adjust ..."
-  # echo "$voffset"
-  # Linux x86 integer takes up 8 bytes, so it will display as 0xfffffffffff0bdc0, don't worry its correct in arm-linux.
-  new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase") # really rubbish
+  open_loop_voltage_next_line=$(echo "$open_loop_voltage_" | awk "NR==2")
+
+  result=$(echo "$first_line" | grep "$open_loop_voltage_next_line")
+  if [ "$result" = "" ]; then
+    echo "qcom,cpr-closed-loop-voltage-adjustment detceted"
+    open_loop_voltage_=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | awk "NR==$j" | sed 's/\(0x[^ ]* \)\{8\}/&\n/g')
+    open_loop_voltage_line=$(echo "$open_loop_voltage_" | wc -l)
+    first_line=$(echo "$open_loop_voltage_" | head -n1)
+    cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
+    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase + $offset_tune))
+    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase + $offset_tune))
+    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase + $offset_tune))
+    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase + $offset_tune))
+    new_v5=$(($(echo "$cricle_adjust" | awk '{print $5}') - $voffset + $voffset_increase))
+    new_v6=$(($(echo "$cricle_adjust" | awk '{print $6}') - $voffset + $voffset_increase))
+    new_v7=$(($(echo "$cricle_adjust" | awk '{print $7}') - $voffset + $voffset_increase))
+    new_v8=$(($(echo "$cricle_adjust" | awk '{print $8}') - $voffset + $voffset_increase))
+    new_v=$(printf "0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 $new_v5 $new_v6 $new_v7 $new_v8 | sed 's/0xf\{8\}/0x/g')
+    echo "replacing $cricle_adjust with $new_v"
+  else
+    cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
+    # echo "$voffset"
+    # Linux x86 integer takes up 8 bytes, so it will display as 0xfffffffffff0bdc0, don't worry its correct in arm-linux.
+    # really rubbish, arm awk dont support -n
+    # new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase")
+
+    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase + $offset_tune))
+    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase))
+    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase))
+    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase))
+    new_v=$(printf "0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 | sed 's/0xf\{8\}/0x/g')
+    echo "replacing $cricle_adjust with $new_v"
+  fi
+
   sed -i "s/$cricle_adjust/$new_v/g" filebuff_s
   ori_line=$(cat filebuff_o | awk "NR==$j")
   mod_line=$(cat filebuff_s | awk "NR==$j")
@@ -218,8 +249,13 @@ if [ "$clean" = "1" ]; then
   cleanup
 fi
 echo "
-***************
-*** NOTICE ***
-***************
+*******************************
+*********** NOTICE ************
+*******************************
 "
-echo "Done in your own risk!"
+echo "Done in your own risk!!!"
+echo "
+*******************************
+*********** NOTICE ************
+*******************************
+"
