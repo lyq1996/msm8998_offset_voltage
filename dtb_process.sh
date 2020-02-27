@@ -10,7 +10,6 @@ voffset=$((100000))
 
 cleanup() {
   $magisk_boot cleanup
-  rm boot.img
 }
 
 abort() {
@@ -179,13 +178,12 @@ fi
 # step 8 packing boot.img
 echo "repacking boot.img..."
 $magisk_boot repack boot.img
+rm -f boot.img
 if [ $install == "1" ]; then
   echo "flashing new boot.."
   dd if=./new-boot.img of=/dev/block/bootdevice/by-name/boot
-
   if [ "$clean" = "1" ]; then
-    rm new-boot.img
-    clean
+    rm -f new-boot.img
   fi
 fi
 
