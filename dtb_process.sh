@@ -166,10 +166,10 @@ while [ $j -le $o_line ]; do
     open_loop_voltage_line=$(echo "$open_loop_voltage_" | wc -l)
     first_line=$(echo "$open_loop_voltage_" | head -n1)
     cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
-    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase + $offset_tune))
-    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase + $offset_tune))
-    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase + $offset_tune))
-    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase + $offset_tune))
+    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase))
+    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase))
+    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase))
+    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase))
     new_v5=$(($(echo "$cricle_adjust" | awk '{print $5}') - $voffset + $voffset_increase))
     new_v6=$(($(echo "$cricle_adjust" | awk '{print $6}') - $voffset + $voffset_increase))
     new_v7=$(($(echo "$cricle_adjust" | awk '{print $7}') - $voffset + $voffset_increase))
@@ -183,7 +183,7 @@ while [ $j -le $o_line ]; do
     # really rubbish, arm awk dont support -n
     # new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase")
 
-    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase + $offset_tune))
+    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase))
     new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase))
     new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase))
     new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase))
