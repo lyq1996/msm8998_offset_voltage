@@ -1,0 +1,8 @@
+kernel_dtb*
+kernel
+ramdisk.cpio
+boot.img
+.vscode
+dtb_process_t.sh
+qcom,board-id
+tmp
