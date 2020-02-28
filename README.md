@@ -1,4 +1,4 @@
-### cpu voltage offset on msm8998
+### cpu and gpu voltage offset on msm8998
 This is a shell script use for undervolt on msm8998(Snapdragon 835)
 
 ```
@@ -41,8 +41,10 @@ There are 3 prebuilt tools in prebuilt/.
     -i              install boot.img after generation
     -c              does not cleanup workspace after finished(you wanna debug)
     -f              force backup the current boot(milestone) to /sdcard/bootimage/, otherwise only backup boot on first time
-    -u              undervolt value, default 90, range(0-125), unit mv
-    -b              overvolt value, default 0, range(0-125), unit mv
+    -u              cpu undervolt value, default 100, range(0-125), unit mv
+    -b              cpu overvolt value, default 0, range(0-125), unit mv
+    -g              gpu undervolt value, default 100, range(0-160), unit mv
+    -r              gpu overvolt value, default 0, range(0-160), unit mv
 ```
 
 ### Let's go
@@ -59,10 +61,11 @@ $ wget https://github.com/lyq1996/msm8998_offset_voltage/archive/master.zip
 $ unzip -q master.zip
 ```
 `rrrrrrun undervolt!!`  
+if dont set `-u` and `-g`, default undervolt cpu and gpu 100mv
 ```
 $ cd msm8998_offset_voltage-master/
 $ su
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh
 ```
 
 `install the new boot`  
@@ -71,19 +74,20 @@ $ su
 ```
 or use option `-i`
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90 -i     # last step
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90 -g 90 -i     # last step
 ```
 
-`same as overvolt`
+`same as overvolt`  
+please remember set `-u` and `-b` 0, because the final `offset=(-b value)-(-u value)`
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 0 -b 90
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 0 -b 90 -g 0 -r 90
 ```
 ### restore
 if something goes wrong, you can restore your the origin boot, first check /sdcard/bootimag/ for the original boot image name.
 
 ```
 su
-dd if=/sdcard/bootimage/boot-*******.img of=/dev/block/bootdevice/by-name/boot  # change it!
+dd if=/sdcard/bootimage/boot-*.img of=/dev/block/bootdevice/by-name/boot  # change it!
 ```
 
 ### result
