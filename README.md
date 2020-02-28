@@ -41,9 +41,9 @@ There are 3 prebuilt tools in prebuilt/.
     -i              install boot.img after generation
     -c              does not cleanup workspace after finished(you wanna debug)
     -f              force backup the current boot(milestone) to /sdcard/bootimage/, otherwise only backup boot on first time
-    -u              cpu undervolt value, default 100, range(0-125), unit mv
+    -u              cpu undervolt value, default 0, range(0-125), unit mv
     -b              cpu overvolt value, default 0, range(0-125), unit mv
-    -g              gpu undervolt value, default 100, range(0-160), unit mv
+    -g              gpu undervolt value, default 0, range(0-160), unit mv
     -r              gpu overvolt value, default 0, range(0-160), unit mv
 ```
 
@@ -61,11 +61,11 @@ $ wget https://github.com/lyq1996/msm8998_offset_voltage/archive/master.zip
 $ unzip -q master.zip
 ```
 `rrrrrrun undervolt!!`  
-if dont set `-u` and `-g`, default undervolt cpu and gpu 100mv
+~~ if not set `-u` and `-g`, default undervolt cpu and gpu 100mv ~~ (0 mv)
 ```
 $ cd msm8998_offset_voltage-master/
 $ su
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 100 -g 100
 ```
 
 `install the new boot`  
@@ -74,17 +74,24 @@ $ su
 ```
 or use option `-i`
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90 -g 90 -i     # last step
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 100 -g 100 -i     # last step
 ```
 
 `same as overvolt`  
-please remember set `-u` and `-b` 0, because the final `offset=(-b value)-(-u value)`
+~~ please remember set `-u` and `-b` 0, because the final `offset=(-b value)-(-u value)` ~~ (no longer need)
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 0 -b 90 -g 0 -r 90
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -b 100 -r 100
 ```
-### restore
-if something goes wrong, you can restore your the origin boot, first check /sdcard/bootimag/ for the original boot image name.
 
+`if you are boring`  
+```
+:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90 -b 100 -g 90 -r 100    # same as ./dtb_process.sh -b 10-r 10
+```
+
+### restore
+if something goes wrong, you can restore your the origin boot, first check /sdcard/bootimage/ for the original boot image name.    
+
+do remember to delete /sdcard/bootimage/.init after flashed a new ROM, otherwise the script will not backup the new rom boot.
 ```
 su
 dd if=/sdcard/bootimage/boot-*.img of=/dev/block/bootdevice/by-name/boot  # change it!
