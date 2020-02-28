@@ -6,8 +6,10 @@ dtb_spliter=./prebuilt/dtp
 dtc=./prebuilt/dtc
 clean="1"
 install="0"
-voffset=$((90000))
+voffset=$((100))
 voffset_increase=$((0))
+goffset=$((100))
+goffset_increase=$((0))
 
 cleanup() {
   $magisk_boot cleanup
@@ -16,7 +18,7 @@ cleanup() {
 abort() {
   echo >&2 '
 *******************************
-*********** NOTICE ************
+************ ABORT ************
 *******************************
 '
   echo "$1" >&2
@@ -24,7 +26,7 @@ abort() {
   exit $((1))
 }
 
-set -- $(getopt -q icfu:b: "$@")
+set -- $(getopt -q icfu:b:g:r: "$@")
 while [ -n "$1" ]; do
   case "$1" in
   -i)
@@ -44,8 +46,8 @@ while [ -n "$1" ]; do
     if [ "$param" -gt $((125)) ] || [ "$param" -lt $((0)) ]; then
       abort "! cpu voltage offset too low or too high"
     fi
-    echo "voltage offset decrease: -$param mv"
-    voffset=$(($param * 1000))
+    #echo "cpu voltage offset decrease: -$param mv"
+    voffset=$(($param))
     shift
     ;;
   -b)
@@ -53,8 +55,26 @@ while [ -n "$1" ]; do
     if [ "$param" -gt $((125)) ] || [ "$param" -lt $((0)) ]; then
       abort "! cpu voltage offset too low or too high"
     fi
-    echo "voltage offset increase: +$param mv"
-    voffset_increase=$(($param * 1000))
+    #echo "cpu voltage offset increase: +$param mv"
+    voffset_increase=$(($param))
+    shift
+    ;;
+  -g)
+    param=$(echo $2 | sed 's/[^0-9]//g')
+    if [ "$param" -gt $((160)) ] || [ "$param" -lt $((0)) ]; then
+      abort "! gpu voltage offset too low or too high"
+    fi
+    #echo "gpu voltage offset decrease: -$param mv"
+    goffset=$(($param))
+    shift
+    ;;
+  -r)
+    param=$(echo $2 | sed 's/[^0-9]//g')
+    if [ "$param" -gt $((160)) ] || [ "$param" -lt $((0)) ]; then
+      abort "! gpu voltage offset too low or too high"
+    fi
+    #echo "voltage offset increase: +$param mv"
+    goffset_increase=$(($param))
     shift
     ;;
   --)
@@ -62,19 +82,18 @@ while [ -n "$1" ]; do
     break
     ;;
   *)
-    echo "$1 is not option"
+    abort "$1 is not option"
     ;;
   esac
   shift
 done
 
-if [ "$voffset" = "$voffset_increase" ]; then
-  abort "! Forbidden TAOWA !"
-elif (("$voffset" > "$voffset_increase")); then
-  offset_tune=$((10000))
-else
-  offset_tune=$((-10000))
+cpu_offset=$(($voffset_increase - $voffset))
+gpu_offset=$(($goffset_increase - $goffset))
+if [ "$cpu_offset" == "0" ] && [ "$gpu_offset" == 0 ]; then
+  abort "cpu and voltage offset: 0mv! exit!"
 fi
+echo "cpu voltage offset: $cpu_offset mv, gpu voltage offset: $gpu_offset mv"
 
 # step 1 get current boot.img
 
@@ -138,14 +157,14 @@ esac
 
 # step 5 apply voltage offset!
 
-# ui_print "- !! default 100mv"
+# ui_print "- !! default cpu 90mv gpu 0mv"
 # remove gfx_corner open-loop-voltage-fuse-adjustment, i dont know what it is
 gfx_cline=$(cat kernel_dtb_$i.dts | grep -n 'regulator-name = "gfx_corner";' | awk '{print $1}' | sed 's/://g')
 gfx_cline_=$(($gfx_cline + 25))
 cat kernel_dtb_$i.dts | sed "$gfx_cline,$gfx_cline_ d" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >filebuff_o
-cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-open-loop-voltage-fuse-adjustment >>filebuff_o
+cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-open-loop-voltage-fuse-adjustment | sed 's/qcom,/gfx,/g' >>filebuff_o
 cat kernel_dtb_$i.dts | grep qcom,cpr-closed-loop-voltage-fuse-adjustment >>filebuff_o
-cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-closed-loop-voltage-adjustment >>filebuff_o
+cat kernel_dtb_$i.dts | sed -n "$gfx_cline,$gfx_cline_ p" | grep qcom,cpr-closed-loop-voltage-adjustment | sed 's/qcom,/gfx,/g' >>filebuff_o
 
 cp filebuff_o filebuff_s
 
@@ -154,49 +173,63 @@ j=1
 
 while [ $j -le $o_line ]; do
   #echo $j
-  open_loop_voltage_=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | awk "NR==$j" | sed 's/\(0x[^ ]* \)\{4\}/&\n/g')
-  open_loop_voltage_line=$(echo "$open_loop_voltage_" | wc -l)
+  line=$(cat filebuff_o | awk "NR==$j")
+  open_loop_voltage_=$(echo "$line" | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | sed 's/\(0x[^ ]* \)\{4\}/&\n/g')
   first_line=$(echo "$open_loop_voltage_" | head -n1)
-  open_loop_voltage_next_line=$(echo "$open_loop_voltage_" | awk "NR==2")
 
-  result=$(echo "$first_line" | grep "$open_loop_voltage_next_line")
-  if [ "$result" = "" ]; then
-    echo "qcom,cpr-closed-loop-voltage-adjustment detceted"
-    open_loop_voltage_=$(cat filebuff_o | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | awk "NR==$j" | sed 's/\(0x[^ ]* \)\{8\}/&\n/g')
-    open_loop_voltage_line=$(echo "$open_loop_voltage_" | wc -l)
-    first_line=$(echo "$open_loop_voltage_" | head -n1)
-    cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
-    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase))
-    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase))
-    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase))
-    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase))
-    new_v5=$(($(echo "$cricle_adjust" | awk '{print $5}') - $voffset + $voffset_increase))
-    new_v6=$(($(echo "$cricle_adjust" | awk '{print $6}') - $voffset + $voffset_increase))
-    new_v7=$(($(echo "$cricle_adjust" | awk '{print $7}') - $voffset + $voffset_increase))
-    new_v8=$(($(echo "$cricle_adjust" | awk '{print $8}') - $voffset + $voffset_increase))
-    new_v=$(printf "0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 $new_v5 $new_v6 $new_v7 $new_v8 | sed 's/0xf\{8\}/0x/g')
-    echo "replacing $cricle_adjust with $new_v"
-  else
-    cricle_adjust=$(echo "$first_line" | sed 's/ $//g')
+  result=$(echo "$line" | grep gfx,cpr)
+  if [ "$result" != "" ] && [ "$gpu_offset" != "0" ]; then
+    echo "gfx loop voltage adjustment detceted"
+    next_line=$(echo "$open_loop_voltage_" | awk "NR==2")
+    close_flag=$(echo "$first_line" | grep "$next_line")
+    if [ "$close_flag" = "" ]; then
+      open_loop_voltage_=$(cat filebuff_o | awk "NR==$j" | sed -e 's/[\t]*.*<//g' | sed 's/>;//g' | sed 's/\(0x[^ ]* \)\{8\}/&\n/g')
+      first_line=$(echo "$open_loop_voltage_" | head -n1)
+      loop_adjust=$(echo "$first_line" | sed 's/ $//g')
+      new_v1=$(($(echo "$loop_adjust" | awk '{print $1}') + (5 * $gpu_offset / 10) * 1000))
+      new_v2=$(($(echo "$loop_adjust" | awk '{print $2}') + (5 * $gpu_offset / 10) * 1000))
+      new_v3=$(($(echo "$loop_adjust" | awk '{print $3}') + (6 * $gpu_offset / 10) * 1000))
+      new_v4=$(($(echo "$loop_adjust" | awk '{print $4}') + (6 * $gpu_offset / 10) * 1000))
+      new_v5=$(($(echo "$loop_adjust" | awk '{print $5}') + (8 * $gpu_offset / 10) * 1000))
+      new_v6=$(($(echo "$loop_adjust" | awk '{print $6}') + (8 * $gpu_offset / 10) * 1000))
+      new_v7=$(($(echo "$loop_adjust" | awk '{print $7}') + $gpu_offset * 1000))
+      new_v8=$(($(echo "$loop_adjust" | awk '{print $8}') + $gpu_offset * 1000))
+      new_v=$(printf "0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 $new_v5 $new_v6 $new_v7 $new_v8 | sed 's/0xf\{8\}/0x/g')
+      echo "replacing $loop_adjust with $new_v"
+      sed -i "s/$loop_adjust/$new_v/g" filebuff_s
+    else
+      loop_adjust=$(echo "$first_line" | sed 's/ $//g')
+      new_v1=$(($(echo "$loop_adjust" | awk '{print $1}') + (5 * $gpu_offset / 10) * 1000))
+      new_v2=$(($(echo "$loop_adjust" | awk '{print $2}') + (6 * $gpu_offset / 10) * 1000))
+      new_v3=$(($(echo "$loop_adjust" | awk '{print $3}') + (8 * $gpu_offset / 10) * 1000))
+      new_v4=$(($(echo "$loop_adjust" | awk '{print $4}') + $gpu_offset * 1000))
+      new_v=$(printf "0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 | sed 's/0xf\{8\}/0x/g')
+      echo "replacing $loop_adjust with $new_v"
+      sed -i "s/$loop_adjust/$new_v/g" filebuff_s
+    fi
+    ori_line=$(cat filebuff_o | awk "NR==$j" | sed "s/gfx,/qcom,/g")
+    mod_line=$(cat filebuff_s | awk "NR==$j" | sed "s/gfx,/qcom,/g")
+    sed -i "s/$ori_line/$mod_line/g" kernel_dtb_$i.dts
+  elif [ "$cpu_offset" != "0" ] && [ "$result" = "" ]; then
+    loop_adjust=$(echo "$first_line" | sed 's/ $//g')
     # echo "$voffset"
     # Linux x86 integer takes up 8 bytes, so it will display as 0xfffffffffff0bdc0, don't worry its correct in arm-linux.
     # really rubbish, arm awk dont support -n
-    # new_v=$(echo "$cricle_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase")
+    # new_v=$(echo "$loop_adjust" | awk '{printf("0x%x 0x%x 0x%x 0x%x\n", $1 - dt + it,$2 - dt + it,$3 - dt + it,$4 - dt + it)}' dt="$voffset" it="$voffset_increase")
 
-    new_v1=$(($(echo "$cricle_adjust" | awk '{print $1}') - $voffset + $voffset_increase))
-    new_v2=$(($(echo "$cricle_adjust" | awk '{print $2}') - $voffset + $voffset_increase))
-    new_v3=$(($(echo "$cricle_adjust" | awk '{print $3}') - $voffset + $voffset_increase))
-    new_v4=$(($(echo "$cricle_adjust" | awk '{print $4}') - $voffset + $voffset_increase))
+    new_v1=$(($(echo "$loop_adjust" | awk '{print $1}') + (9 * $cpu_offset / 10) * 1000))
+    new_v2=$(($(echo "$loop_adjust" | awk '{print $2}') + (9 * $cpu_offset / 10) * 1000))
+    new_v3=$(($(echo "$loop_adjust" | awk '{print $3}') + $cpu_offset * 1000))
+    new_v4=$(($(echo "$loop_adjust" | awk '{print $4}') + $cpu_offset * 1000))
     new_v=$(printf "0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 | sed 's/0xf\{8\}/0x/g')
-    echo "replacing $cricle_adjust with $new_v"
+    echo "replacing $loop_adjust with $new_v"
+    sed -i "s/$loop_adjust/$new_v/g" filebuff_s
+    ori_line=$(cat filebuff_o | awk "NR==$j")
+    mod_line=$(cat filebuff_s | awk "NR==$j")
+    sed -i "s/$ori_line/$mod_line/g" kernel_dtb_$i.dts
   fi
-
-  sed -i "s/$cricle_adjust/$new_v/g" filebuff_s
-  ori_line=$(cat filebuff_o | awk "NR==$j")
-  mod_line=$(cat filebuff_s | awk "NR==$j")
-  sed -i "s/$ori_line/$mod_line/g" kernel_dtb_$i.dts
-  case $i in
-  $dtb_count)
+  case $? in
+  1)
     abort "! Unable to patched kernel_dtb_$i.dts"
     ;;
   esac
@@ -207,8 +240,8 @@ echo "patched done."
 # step 6 compile dts to dtb
 $dtc -q -I dts -O dtb kernel_dtb_$i.dts -o kernel_dtb-$i
 if [ "$clean" = "1" ]; then
-  echo "removing useless kernetl_dtb-*.dis.."
-  rm -f kernel_dtb_*.dts
+  echo "removing useless kernetl_dtb_$i.dis.."
+  rm -f kernel_dtb_$i.dts
 fi
 
 # step 7 generate new dtb
