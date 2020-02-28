@@ -6,9 +6,9 @@ dtb_spliter=./prebuilt/dtp
 dtc=./prebuilt/dtc
 clean="1"
 install="0"
-voffset=$((100))
+voffset=$((0))
 voffset_increase=$((0))
-goffset=$((100))
+goffset=$((0))
 goffset_increase=$((0))
 
 cleanup() {
