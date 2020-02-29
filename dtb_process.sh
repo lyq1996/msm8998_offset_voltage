@@ -91,7 +91,7 @@ done
 cpu_offset=$(($voffset_increase - $voffset))
 gpu_offset=$(($goffset_increase - $goffset))
 if [ "$cpu_offset" == "0" ] && [ "$gpu_offset" == 0 ]; then
-  abort "cpu and voltage offset: 0mv! exit!"
+  abort "cpu and gpu voltage offset: 0mv! exit!"
 fi
 echo "cpu voltage offset: $cpu_offset mv, gpu voltage offset: $gpu_offset mv"
 
@@ -132,8 +132,8 @@ esac
 
 # ui_print "- decompile adapted kernel_dtb"
 dtb_count=$(ls -lh kernel_dtb-* | wc -l)
-board_id=$(cat /proc/device-tree/qcom,board-id | xxd -p | sed 's/.\{8\}/&\n/g' | sed 's/^0\{6\}/0x/g' | sed 's/^0\{5\}/0x/g' | sed 's/^0\{4\}/0x/g' | sed 's/^0\{3\}/0x/g' | sed 's/^0\{2\}/0x/g' | sed 's/^0\{1\}x*/0x/g' | tr '\n' ' ' | sed 's/ *$/\n/g')
-msm_id=$(cat /proc/device-tree/qcom,msm-id | xxd -p | sed 's/.\{8\}/&\n/g' | sed 's/^0\{6\}/0x/g' | sed 's/^0\{5\}/0x/g' | sed 's/^0\{4\}/0x/g' | sed 's/^0\{3\}/0x/g' | sed 's/^0\{2\}/0x/g' | sed 's/^0\{1\}x*/0x/g' | tr '\n' ' ' | sed 's/ *$/\n/g')
+board_id=$(cat /proc/device-tree/qcom,board-id | xxd -p | xargs echo | sed 's/ //g' | sed 's/.\{8\}/&\n/g' | sed 's/^0\{6\}/0x/g' | sed 's/^0\{5\}/0x/g' | sed 's/^0\{4\}/0x/g' | sed 's/^0\{3\}/0x/g' | sed 's/^0\{2\}/0x/g' | sed 's/^0\{1\}x*/0x/g' | tr '\n' ' ' | sed 's/ *$/\n/g')
+msm_id=$(cat /proc/device-tree/qcom,msm-id | xxd -p | xargs echo | sed 's/ //g' | sed 's/.\{8\}/&\n/g' | sed 's/^0\{6\}/0x/g' | sed 's/^0\{5\}/0x/g' | sed 's/^0\{4\}/0x/g' | sed 's/^0\{3\}/0x/g' | sed 's/^0\{2\}/0x/g' | sed 's/^0\{1\}x*/0x/g' | tr '\n' ' ' | sed 's/ *$/\n/g')
 echo "device board_id: $board_id, msm_id: $msm_id"
 
 i=0
