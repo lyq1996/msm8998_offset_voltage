@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS += -std=c11 -Wall # --static 
+CFLAGS += -std=c11 -Wall
 SRCS = dtp.c
 OBJS = $(SRCS:.c=.o)
 MAIN = dtp
