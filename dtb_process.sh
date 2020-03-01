@@ -18,19 +18,19 @@ fi
 
 if [ ! -f $magisk_boot ]; then
     echo "init: getting ./prebuilt/magiskboot from github..."
-    curl https://github.com/lyq1996/msm8998_offset_voltage/blob/master/prebuilt/magiskboot >$magisk_boot
+    curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/magiskboot >$magisk_boot
     chmod +x $magisk_boot
 fi
 
 if [ ! -f $dtc ]; then
     echo "init: getting ./prebuilt/dtc from github..."
-    curl https://github.com/lyq1996/msm8998_offset_voltage/blob/master/prebuilt/dtc >$dtc
+    curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/dtc >$dtc
     chmod +x $dtc
 fi
 
 if [ ! -f $dtb_spliter ]; then
     echo "init: getting ./prebuilt/dtb_spliter from github..."
-    curl https://github.com/lyq1996/msm8998_offset_voltage/blob/master/prebuilt/dtp >$dtb_spliter
+    curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/dtp >$dtb_spliter
     chmod +x $dtb_spliter
 fi
 
