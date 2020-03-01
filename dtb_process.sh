@@ -17,21 +17,48 @@ if [ ! -d ./prebuilt ]; then
 fi
 
 if [ ! -f $magisk_boot ]; then
-    echo "init: getting ./prebuilt/magiskboot from github..."
+    echo "init: fetch ./prebuilt/magiskboot from github..."
     curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/magiskboot >$magisk_boot
-    chmod +x $magisk_boot
+    case $? in
+    0)
+        echo "fetched magiskboot"
+        chmod +x $magisk_boot
+        ;;
+    1)
+        rm -rf prebuilt
+        abort "! fetch magiskboot failed, maybe you should check your network"
+        ;;
+    esac
 fi
 
 if [ ! -f $dtc ]; then
-    echo "init: getting ./prebuilt/dtc from github..."
+    echo "init: fetch ./prebuilt/dtc from github..."
     curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/dtc >$dtc
-    chmod +x $dtc
+    case $? in
+    0)
+        echo "fetched dtc"
+        chmod +x $dtc
+        ;;
+    1)
+        rm -rf prebuilt
+        abort "! fetch dtc failed, maybe you should check your network"
+        ;;
+    esac
 fi
 
 if [ ! -f $dtb_spliter ]; then
-    echo "init: getting ./prebuilt/dtb_spliter from github..."
+    echo "init: fetch ./prebuilt/dtb_spliter from github..."
     curl https://raw.githubusercontent.com/lyq1996/msm8998_offset_voltage/master/prebuilt/dtp >$dtb_spliter
-    chmod +x $dtb_spliter
+        case $? in
+    0)
+        echo "fetched dtp"
+        chmod +x $dtb_spliter
+        ;;
+    1)
+        rm -rf prebuilt
+        abort "! fetch dtp failed, maybe you should check your network"
+        ;;
+    esac
 fi
 
 cleanup() {
