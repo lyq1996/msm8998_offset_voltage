@@ -1,19 +1,7 @@
-#include <getopt.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-
-typedef struct dtb_info {
-  uint32_t total_size;
-  uint32_t addr_start;
-  uint32_t addr_stop;
-  char *new_file;
-} dtb;
+# include "dtp.h"
 
 static void die(char *message) {
-  fprintf(stderr, message);
+  fprintf(stderr, "%s", message);
   exit(EXIT_FAILURE);
 }
 
@@ -42,7 +30,7 @@ static void check_arg(int argc, char *argv[], char *dtb_file) {
     }
   }
   if(input_exist!=1){
-      usage(argv[0]);
+    usage(argv[0]);
   }
 }
 
@@ -75,7 +63,10 @@ int main(int argc, char *argv[]) {
     die("open dtb file failed\n");
   }
 
-  fgets(buff, 5, fp);  // compare with head
+  for (int i = 0; i != 4; i++) {
+    buff[i] = fgetc(fp);  // compare with head
+  }
+
   int ret = memcmp(&buff, &head, sizeof(buff));
   if (ret != 0) {
     fclose(fp);
@@ -86,15 +77,16 @@ int main(int argc, char *argv[]) {
   int new_dtb_count = 0;
   long cur_pos = ftell(fp);
   while (cur_pos < filesize) {
-    fgets(buff, 5, fp);
+    for (int i = 0; i != 4; i++) {
+      buff[i] = fgetc(fp);
+    }
     memcpy_(&info.total_size, &buff, 4);  // dtb file big endian, wtf
-    printf("dtb block: %d, block size:%d\n", new_dtb_count, info.total_size);
     info.addr_start = cur_pos - 4;
     info.addr_stop = info.addr_start + info.total_size;
 
     fseek(fp, info.addr_start, SEEK_SET);
     sprintf(filename, "%s-%d", file_, new_dtb_count);
-    printf("%s\n", filename);
+    printf("dtb block: %d, block size:%d -> %s\n", new_dtb_count, info.total_size, filename);
     FILE *new_dtb = fopen(filename, "wb");
     for (uint32_t i = 0; i < info.total_size; i++) {
       buff_c = fgetc(fp);
