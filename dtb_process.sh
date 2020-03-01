@@ -11,6 +11,21 @@ voffset_increase=$((0))
 goffset=$((0))
 goffset_increase=$((0))
 
+cleanup() {
+    $magisk_boot cleanup
+}
+
+abort() {
+    echo >&2 '
+*******************************
+************ ABORT ************
+*******************************
+'
+    echo "$1" >&2
+    cleanup
+    exit $((1))
+}
+
 if [ ! -d ./prebuilt ]; then
     echo "init: creating ./prebuilt ..."
     mkdir prebuilt
@@ -51,21 +66,6 @@ if [ ! -f $dtb_spliter ]; then
         abort "! fetch dtp failed, maybe you should check your network"
     fi
 fi
-
-cleanup() {
-    $magisk_boot cleanup
-}
-
-abort() {
-    echo >&2 '
-*******************************
-************ ABORT ************
-*******************************
-'
-    echo "$1" >&2
-    cleanup
-    exit $((1))
-}
 
 set -- $(getopt -q icfu:b:g:r: "$@")
 while [ -n "$1" ]; do
