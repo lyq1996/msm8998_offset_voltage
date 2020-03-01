@@ -48,7 +48,7 @@ There are 3 prebuilt tools in prebuilt/.
 ```
 
 ### Let's go
-`get the srcipt  `
+#### get the srcipt
 
 open termux bash:
 ```
@@ -57,44 +57,50 @@ $ su
 :/data/data/com.termux/files/home # chmod +x dtb_process.sh
 ```
 
-`undervolt!!`  
-~~if not set `-u` and `-g`, default undervolt cpu and gpu 100mv ~~(0 mv)
+undervolt!!
+~~if not set `-u` and `-g`, default undervolt cpu and gpu 100mv~~(default 0 mv)
 
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100
 ```
 
-`install the new boot`  
+install the new boot  
 ```
 :/data/data/com.termux/files/home # dd if=./new-boot.img of=/dev/block/bootdevice/by-name/boot
 ```
+
 or use option `-i`(then you don't need step `install the new boot`)
+
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100 -i
 ```
 
-`same as overvolt`  
+same as overvolt
 ~~please remember set `-u` and `-b` 0, because~~ (no longer need) the final `offset=(-b value)-(-u value)`
+
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -b 100 -r 100
 ```
 
-`if you are boring`  
+if you are boring
+
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -u 90 -b 100 -g 90 -r 100    # same as ./dtb_process.sh -b 10-r 10
 ```
 
 ### restore
-if something goes wrong, you can restore your origin boot, first check /sdcard/bootimage/ for the original boot image name.    
+if something goes wrong, you can restore your origin boot, please check /sdcard/bootimage/ for the original boot image name.    
 
 do remember to delete /sdcard/bootimage/.init after flashed a new ROM, otherwise the script will not backup the new rom boot.
+
 ```
 su
 dd if=/sdcard/bootimage/boot-*.img of=/dev/block/bootdevice/by-name/boot  # change it!
 ```
 
 ### result
-`before undervolt:`
+before undervolt:
+
 ```
 # 
 [    0.440216] [    0.440200]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu0
@@ -114,7 +120,7 @@ dd if=/sdcard/bootimage/boot-*.img of=/dev/block/bootdevice/by-name/boot  # chan
 [    0.443685] [    0.443682]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu7
 [    0.444202] [    0.444200]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu7
 ```
-`after undervolt 90mv:`
+after undervolt 90mv:
 ```
 [    0.454104] [    0.454088]@4 add_opp: Set OPP pair (300000000 Hz, 580000 uv) on cpu0
 [    0.454723] [    0.454720]@4 add_opp: Set OPP pair (1900800000 Hz, 820000 uv) on cpu0
