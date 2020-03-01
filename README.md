@@ -50,18 +50,17 @@ There are 3 prebuilt tools in prebuilt/.
 ### Let's go
 #### get the srcipt
 
-open termux bash:
+open termux bash and get script:
 ```
 $ su
 :/data/data/com.termux/files/home # curl https://github.com/lyq1996/msm8998_offset_voltage/blob/master/dtb_process.sh > dtb_process.sh
-:/data/data/com.termux/files/home # chmod +x dtb_process.sh
 ```
 
 undervolt!!
 ~~if not set `-u` and `-g`, default undervolt cpu and gpu 100mv~~(default 0 mv)
 
 ```
-:/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100
+:/data/data/com.termux/files/home # sh dtb_process.sh -u 100 -g 100
 ```
 
 install the new boot  
