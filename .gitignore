@@ -9,3 +9,4 @@ tmp
 filebuff_o
 filebuff_s
 new-boot.img
+qcom,msm-id

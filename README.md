@@ -1,5 +1,5 @@
 ### cpu and gpu voltage offset on msm8998
-This is a shell script use for undervolt on msm8998(Snapdragon 835)
+The shell script use for msm8998(Snapdragon 835) undervolt
 
 ```
 #include <std_disclaimer.h>
@@ -27,12 +27,12 @@ There are 3 prebuilt tools in prebuilt/.
 2. use `magiskboot` to unpack boot.img into kernel+kernel_dtb
 3. use `dtp` to split kernel_dtb into sub kernel_dtb-*
 4. find the adapted dtb according to `qcom, board-id` and `qcom, msm-id`
-5. use `dtc` to decompile the selected dtb into .dts
-6. undervolt by change `qcom,cpr-open-loop-voltage-fuse-adjustment` `qcom,cpr-closed-loop-voltage-fuse-adjustment` `qcom,cpr-closed-loop-voltage-adjustment` in .dts
-7. compile dts and pack boot.img
+5. use `dtc` to decompile the selected dtb(binary) into .dts(source)
+6. undervolt by change `qcom,cpr-open-loop-voltage-fuse-adjustment` `qcom,cpr-closed-loop-voltage-fuse-adjustment` `qcom,cpr-closed-loop-voltage-adjustment` in device-tree source file
+7. compile dts to dtb and pack boot.img
 
 ### prepare
-1. Termux: [Google Play](https://play.google.com/store/apps/details?id=com.termux)
+1. Termux: [Google Play](https://play.google.com/store/apps/details?id=com.termux)(or other)
 2. Your device is rooted
 
 ### usage
@@ -50,46 +50,42 @@ There are 3 prebuilt tools in prebuilt/.
 ### Let's go
 `get the srcipt  `
 
-if you installed git on termux bash:
+open termux bash:
 ```
-$ git clone https://github.com/lyq1996/msm8998_offset_voltage.git
+$ su
+:/data/data/com.termux/files/home # curl https://github.com/lyq1996/msm8998_offset_voltage/blob/master/dtb_process.sh > dtb_process.sh
+:/data/data/com.termux/files/home # chmod +x dtb_process.sh
 ```
-if not:
-```
-$ pkg install wget
-$ wget https://github.com/lyq1996/msm8998_offset_voltage/archive/master.zip
-$ unzip -q master.zip
-```
+
 `rrrrrrun undervolt!!`  
 ~~ if not set `-u` and `-g`, default undervolt cpu and gpu 100mv ~~ (0 mv)
+
 ```
-$ cd msm8998_offset_voltage-master/
-$ su
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 100 -g 100
+:/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100
 ```
 
 `install the new boot`  
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # dd if=./new-boot.img of=/dev/block/bootdevice/by-name/boot
+:/data/data/com.termux/files/home # dd if=./new-boot.img of=/dev/block/bootdevice/by-name/boot
 ```
-or use option `-i`
+or use option `-i`(then you don't need step `install the new boot`)
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 100 -g 100 -i     # last step
+:/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100 -i
 ```
 
 `same as overvolt`  
 ~~ please remember set `-u` and `-b` 0, because the final `offset=(-b value)-(-u value)` ~~ (no longer need)
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -b 100 -r 100
+:/data/data/com.termux/files/home # ./dtb_process.sh -b 100 -r 100
 ```
 
 `if you are boring`  
 ```
-:/data/data/com.termux/files/home/msm8998_offset_voltage-master # ./dtb_process.sh -u 90 -b 100 -g 90 -r 100    # same as ./dtb_process.sh -b 10-r 10
+:/data/data/com.termux/files/home # ./dtb_process.sh -u 90 -b 100 -g 90 -r 100    # same as ./dtb_process.sh -b 10-r 10
 ```
 
 ### restore
-if something goes wrong, you can restore your the origin boot, first check /sdcard/bootimage/ for the original boot image name.    
+if something goes wrong, you can restore your origin boot, first check /sdcard/bootimage/ for the original boot image name.    
 
 do remember to delete /sdcard/bootimage/.init after flashed a new ROM, otherwise the script will not backup the new rom boot.
 ```
