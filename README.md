@@ -57,8 +57,8 @@ $ su
 :/data/data/com.termux/files/home # chmod +x dtb_process.sh
 ```
 
-`rrrrrrun undervolt!!`  
-~~ if not set `-u` and `-g`, default undervolt cpu and gpu 100mv ~~ (0 mv)
+`undervolt!!`  
+~~if not set `-u` and `-g`, default undervolt cpu and gpu 100mv ~~(0 mv)
 
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -u 100 -g 100
@@ -74,7 +74,7 @@ or use option `-i`(then you don't need step `install the new boot`)
 ```
 
 `same as overvolt`  
-~~ please remember set `-u` and `-b` 0, because the final `offset=(-b value)-(-u value)` ~~ (no longer need)
+~~please remember set `-u` and `-b` 0, because~~ (no longer need) the final `offset=(-b value)-(-u value)`
 ```
 :/data/data/com.termux/files/home # ./dtb_process.sh -b 100 -r 100
 ```
