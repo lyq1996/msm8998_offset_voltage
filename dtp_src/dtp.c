@@ -1,4 +1,4 @@
-# include "dtp.h"
+#include "dtp.h"
 
 static void die(char *message) {
   fprintf(stderr, "%s", message);
@@ -29,7 +29,7 @@ static void check_arg(int argc, char *argv[], char *dtb_file) {
         break;
     }
   }
-  if(input_exist!=1){
+  if (input_exist != 1) {
     usage(argv[0]);
   }
 }
@@ -48,7 +48,7 @@ static void *memcpy_(void *dest, void *src, size_t size) {
 int main(int argc, char *argv[]) {
   char *file_ = malloc(sizeof(char) * 100);
   char *filename = malloc(sizeof(char) * 100);
-  check_arg(argc,argv,file_);
+  check_arg(argc, argv, file_);
 
   struct stat filebuff;
   stat(file_, &filebuff);
@@ -63,30 +63,31 @@ int main(int argc, char *argv[]) {
     die("open dtb file failed\n");
   }
 
-  for (int i = 0; i != 4; i++) {
-    buff[i] = fgetc(fp);  // compare with head
-  }
-
-  int ret = memcmp(&buff, &head, sizeof(buff));
-  if (ret != 0) {
-    fclose(fp);
-    die("not valid dtb file\n");
-  }
-
   dtb info;
   int new_dtb_count = 0;
-  long cur_pos = ftell(fp);
-  while (cur_pos < filesize) {
+  long cur_pos = 0;
+  int ret;
+
+  while (1) {
+    for (int i = 0; i != 4; i++) {
+      buff[i] = fgetc(fp);  // compare with head
+    }
+    ret = memcmp(&buff, &head, sizeof(buff));
+    if (ret != 0) {
+      break;
+    }
+
     for (int i = 0; i != 4; i++) {
       buff[i] = fgetc(fp);
     }
     memcpy_(&info.total_size, &buff, 4);  // dtb file big endian, wtf
-    info.addr_start = cur_pos - 4;
+    info.addr_start = cur_pos;
     info.addr_stop = info.addr_start + info.total_size;
 
     fseek(fp, info.addr_start, SEEK_SET);
     sprintf(filename, "%s-%d", file_, new_dtb_count);
-    printf("dtb block: %d, block size:%d -> %s\n", new_dtb_count, info.total_size, filename);
+    printf("dtb block: %d, block size:%d -> %s\n", new_dtb_count,
+           info.total_size, filename);
     FILE *new_dtb = fopen(filename, "wb");
     for (uint32_t i = 0; i < info.total_size; i++) {
       buff_c = fgetc(fp);
@@ -94,8 +95,12 @@ int main(int argc, char *argv[]) {
     }
     fclose(new_dtb);
 
-    fseek(fp, info.addr_stop + 4, SEEK_SET);  // move fp to next dtb block size
+    // fseek(fp, info.addr_stop + 4, SEEK_SET);  // move fp to next dtb block size
+
     cur_pos = ftell(fp);
+    if (cur_pos == filesize) {
+      break;
+    }
     new_dtb_count++;
   }
 
