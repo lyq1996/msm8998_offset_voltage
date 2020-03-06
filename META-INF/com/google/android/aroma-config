@@ -133,7 +133,7 @@ selectbox(
 );
 
 selectbox(
-  "\nCPU voltage offset","<@center><b>\n<~text_gpu_adjust>\n</b></@>","","gpu_undervolt.prop",
+  "\nGPU voltage offset","<@center><b>\n<~text_gpu_adjust>\n</b></@>","","gpu_undervolt.prop",
   "-220mv","<~text_dang>",0,
   "-210mv","<~text_dang>",0,
   "-200mv","<~text_dang>",0,
