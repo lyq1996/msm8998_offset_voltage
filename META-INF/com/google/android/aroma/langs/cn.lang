@@ -1,0 +1,96 @@
+﻿### LICENSE:
+#
+# Copyright (C) 2011 Ahmad Amarullah ( http://amarullz.com/ )
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+### LANGUAGE STRING RESOURCE FILE
+#
+#   Language  : 简体中文
+#   By        : amarullz + google translate + 魂客（kinghunki）
+#
+
+#
+#--- COMMON SYSTEM STRING RESOURCE
+#
+text_ok=确定
+text_next=下一步
+text_back=返回
+text_yes=同意
+text_no=放弃
+text_about=关于
+text_calibrating=屏幕校准
+text_quit=退出安装
+text_quit_msg=你确定要退出安装吗？
+
+#
+#-- CUSTOM STRING RESOURCE
+#
+common.for=到您的
+
+langtest.title=语言测试
+langtest.multiline=这个简体中文文件在：langs/cn.lang\
+如果你有更好的解释，请自行打开.lang文件修改其中内容。
+
+感谢amarullz 提供的智能刷机脚本。
+感谢您使用 AROMA Installer智能刷机脚本。
+
+#-- End of string without any backslash for multiline text
+
+
+themes.title=选择主题
+themes.desc=要在此安装测试使用，请选择安装的主题：
+
+welcome.title=欢迎
+welcome.text1=你即将安装
+welcome.text2=AROMA Installer 是第一也是唯一的触摸选择刷机过程的智能脚本.
+welcome.version=ROM 版本
+welcome.codename=定制作者
+welcome.updated=更新日期
+welcome.next=按下一步继续安装...
+
+terms.title=条款和许可
+terms.desc=请仔细阅读仔细的AROMA安装条款和以下许可.
+terms.check=我同意本条款及许可...
+terms.confirm=请认真阅读协议并同意...
+
+changelog.title=更新日志
+changelog.desc=关于更新说明
+
+rom_name=Snapdragon 835降压工具
+rom_device=非A/B分区835的机型
+text_for=适用于
+text_version=版本
+text_author=作者
+text_release=日期
+text_thanks=特别感谢
+text_next_t=按下一步继续
+text_read=使用须知
+text_please_yes=请同意
+text_error=错误
+text_check=检测到可能不是835机型,是否继续?
+text_continue=继续
+text_afraid=我怂了
+text_dang=(危险!)
+text_keep=(保持当前电压水平)
+text_backup=备份当前的boot到
+text_yess=是
+text_nooo=否
+text_installing=正在安装...
+text_waiting=请耐心等待...
+text_fin=完成
+text_insfin=安装完成
+text_reboot=请重启
+text_insfail=安装失败
+text_cpu_adjust=CPU电压调节
+text_gpu_adjust=GPU电压调节

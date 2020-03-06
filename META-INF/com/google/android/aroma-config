@@ -1,0 +1,226 @@
+﻿### LICENSE:
+#
+# Copyright (C) 2011 Ahmad Amarullah ( http://amarullz.com/ )
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+###
+
+ini_set("rom_version",          "1.0");
+ini_set("rom_author",          "lyq1996");
+ini_set("rom_date",             "Mar 5, 2020");
+
+ini_set("force_colorspace","rgba");
+
+fontresload( "0", "ttf/DroidSansFallback.ttf", "12" );
+fontresload( "1", "ttf/DroidSansFallback.ttf", "18" ); 
+
+splash(2000, "lcblues");
+
+theme("ElementalX");
+
+selectbox(
+    "Select Language",
+    "Please select installer language that you want to use in this installation:",
+    "@default",
+    "lang.prop",
+    "English", "English", 1,
+    "Simplified Chinesse", "简体中文", 0
+);
+
+if prop("lang.prop","selected.0")=="1" then
+  loadlang("langs/en.lang");
+endif;
+
+if prop("lang.prop","selected.0")=="2" then
+  loadlang("langs/cn.lang");
+endif;
+
+viewbox(
+    "\n<~rom_name>",
+    "<@center>\n<~text_for> <b>" + "<~rom_device>" + "</b>\n\n</@>" +
+    "\n\n\n\n"+
+    "  <~text_version>\t\t: <b><#selectbg_g> "+ini_get("rom_version")+"</#></b>\n" +
+    "  <~text_author>\t\t: <b><#selectbg_g> "+ini_get("rom_author")+"</#></b>\n" +
+    "  <~text_release>\t\t: <b><#selectbg_g> "+ini_get("rom_date")+"</#></b>\n" +
+    "  <~text_thanks>\t: <b><#selectbg_g> "+"asto18089"+"</#></b>\n" +
+    "  <~text_thanks>\t: <b><#selectbg_g> "+"南昌狗头人"+"</#></b>\n\n\n" +
+    "  <~text_next_t>",
+    "@welcome"
+);
+
+if prop("lang.prop","selected.0")=="1" then
+  agreebox(
+   "\n<~text_read>",
+   "<@center>\n\n\n</@>",
+   "",
+   "" + readfile_aroma("agreement_e.txt"),
+   "<~text_yes>",
+   "<@center>\n<~text_please_yes></@>"
+);
+endif;
+
+if prop("lang.prop","selected.0")=="2" then
+  agreebox(
+   "\n<~text_read>",
+   "<@center>\n\n\n</@>",
+   "",
+   "" + readfile_aroma("agreement_c.txt"),
+   "<~text_yes>",
+   "<@center>\n<~text_please_yes></@>"
+);
+endif;
+
+setvar(
+    "platform_check",
+    resexec("model.sh")
+  );
+if getvar("platform_check")=="1"
+then
+  menubox(
+    "\n<~text_error>>",
+    "<@center><b>\n<~text_ch>>\n\n\n</@>",
+    "",
+    "model.prop",
+    "<~text_continue>","","@install",
+    "<~text_afraid>","","@trash"
+  );
+  if prop("model.prop","selected")=="2"
+  then
+    exit("");
+  endif;
+endif;
+
+selectbox(
+  "\nCPU voltage offset","<@center><b>\n<~text_cpu_adjust>\n</b></@>","","cpu_undervolt.prop",
+  "-130mv","<~text_dang>",0,
+  "-120mv","<~text_dang>",0,
+  "-110mv","",0,
+  "-100mv","",0,
+  "-90mv","",0,
+  "-80mv","",0,
+  "-70mv","",0,
+  "-60mv","",0,
+  "-50mv","",0,
+  "-40mv","",0,
+  "-30mv","",0,
+  "-20mv","",0,
+  "-10mv","",0,
+  "0mv","<~text_keep>",1,
+  "+10mv","",0,
+  "+20mv","",0,
+  "+30mv","",0,
+  "+40mv","",0,
+  "+50mv","",0,
+  "+60mv","",0,
+  "+70mv","",0,
+  "+80mv","",0,
+  "+90mv","",0,
+  "+100mv","",0,
+  "+110mv","",0,
+  "+120mv","<~text_dang>",0,
+  "+130mv","<~text_dang>",0
+);
+
+selectbox(
+  "\nCPU voltage offset","<@center><b>\n<~text_gpu_adjust>\n</b></@>","","gpu_undervolt.prop",
+  "-220mv","<~text_dang>",0,
+  "-210mv","<~text_dang>",0,
+  "-200mv","<~text_dang>",0,
+  "-190mv","<~text_dang>",0,
+  "-180mv","<~text_dang>",0,
+  "-170mv","<~text_dang>",0,
+  "-160mv","",0,
+  "-150mv","",0,
+  "-140mv","",0,
+  "-130mv","",0,
+  "-120mv","",0,
+  "-110mv","",0,
+  "-100mv","",0,
+  "-90mv","",0,
+  "-80mv","",0,
+  "-70mv","",0,
+  "-60mv","",0,
+  "-50mv","",0,
+  "-40mv","",0,
+  "-30mv","",0,
+  "-20mv","",0,
+  "-10mv","",0,
+  "0mv","<~text_keep>",1,
+  "+10mv","",0,
+  "+20mv","",0,
+  "+30mv","",0,
+  "+40mv","",0,
+  "+50mv","",0,
+  "+60mv","",0,
+  "+70mv","",0,
+  "+80mv","",0,
+  "+90mv","",0,
+  "+100mv","",0,
+  "+110mv","",0,
+  "+120mv","",0,
+  "+130mv","",0,
+  "+140mv","",0,
+  "+150mv","",0,
+  "+160mv","",0,
+  "+170mv","<~text_dang>",0,
+  "+180mv","<~text_dang>",0,
+  "+190mv","<~text_dang>",0,
+  "+200mv","<~text_dang>",0,
+  "+210mv","<~text_dang>",0,
+  "+220mv","<~text_dang>",0
+);
+
+
+selectbox(
+  "\nBackup","<@center><b>\n<~text_backup>/sdcard/bootimage</b>\n\n</@>","","backup.prop",
+  "<~text_yess>","",1,
+  "<~text_nooo>","",0
+);
+
+menubox(
+  "\nInstaller",
+  "<@center>\n\n\n</@>",
+  "",
+  "menu.prop",
+  "<~text_continue>","","@install",
+  "<~text_afraid>","","@trash"
+);
+
+if prop("menu.prop","selected")=="2"
+then
+  exit("");
+endif;
+
+setvar("retstatus",
+install(
+  "\nInstalling",
+  "<@center>\n<~text_installing>\n<~text_waiting></@>",
+  "")
+);
+
+ini_set("text_next", "<~text_fin>");
+
+if getvar("retstatus")=="0" then
+  viewbox(
+  "\n<~text_insfin>",
+  "<@center>\n\n\n<~text_reboot>"+
+  "\n\n\n\n</@>",
+  ""
+);
+else
+   viewbox("<~text_insfail>",
+   "\n\nInstaller Status: "+ 
+   getvar("retstatus"),"@warning");
+endif;
+

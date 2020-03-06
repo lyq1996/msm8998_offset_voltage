@@ -1,0 +1,22 @@
+
+
+
+<b> Tutorial: </b>
+
+<*> Please exit immediately if your device is A/B boot slot</*>
+
+<*> Select the value you need to increase or decrease voltage on the next page </*>
+
+<*> If backup boot is selected, the tool will backup your current boot to /sdcard/bootimage/, unlike kernel, it is a complete boot partition image 
+For all effects brought by the tool, can be Flash this boot backup in TWRP to eliminate</*>
+
+<*> Please remember the voltage you increased or decreased</*>
+
+
+<b> Agreement:</b>
+
+<*> You are installing this at your own risk</*>
+
+<*> I am not responsible for any damages or problems that may occur by using this tool</*>
+
+<*> By using this tool, you agree with the above terms!</*>
