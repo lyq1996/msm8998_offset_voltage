@@ -89,7 +89,7 @@ if getvar("platform_check")=="1"
 then
   menubox(
     "\n<~text_error>>",
-    "<@center><b>\n<~text_ch>>\n\n\n</@>",
+    "<@center><b>\n<~text_ch>\n\n\n</@>",
     "",
     "model.prop",
     "<~text_continue>","","@install",

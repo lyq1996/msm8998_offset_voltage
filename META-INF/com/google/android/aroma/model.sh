@@ -1,6 +1,6 @@
 #!/sbin/sh
-
-platform=$(getprop ro.hardware.gatekeeper)
+exit 0
+platform=$(getprop ro.board.platform)
 
 if [ $platform = "msm8998" ];then
     exit 0
