@@ -67,8 +67,8 @@ terms.confirm=请认真阅读协议并同意...
 changelog.title=更新日志
 changelog.desc=关于更新说明
 
-rom_name=Snapdragon 835降压工具
-rom_device=非A/B分区835的机型
+rom_name=Snapdragon 835/660降压工具
+rom_device=非A/B分区835/660的机型
 text_for=适用于
 text_version=版本
 text_author=作者
@@ -94,3 +94,6 @@ text_reboot=请重启
 text_insfail=安装失败
 text_cpu_adjust=CPU电压调节
 text_gpu_adjust=GPU电压调节
+text_msm8998=高通晓龙835
+text_sdm660=高通晓龙660
+text_platform_select=选择你的平台

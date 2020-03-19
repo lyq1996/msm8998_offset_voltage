@@ -70,8 +70,8 @@ changelog.desc=AROMA Installer Changelog
 
 test_for=for
 
-rom_name=Snapdragon 835 Undervolt tool
-rom_device=device with 835 and no A/B solt
+rom_name=Snapdragon 835/660 Undervolt tool
+rom_device=device with 835/660 and no A/B solt
 text_for=for
 text_version=VERSION
 text_author=AUTHOR
@@ -97,3 +97,6 @@ text_reboot=please reboot
 text_insfail=Installation Failed
 text_cpu_adjust=Select CPU voltage offset
 text_gpu_adjust=Select GPU voltage offset
+text_msm8998=Snapdragon 835
+text_sdm660=Snapdragon 660
+text_platform_select=Select your platform

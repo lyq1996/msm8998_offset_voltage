@@ -5,11 +5,17 @@ bbox=/tmp/aroma/busybox
 # magisk_boot=/tmp/aroma/magiskboot
 
 val1=$($bbox cat /tmp/aroma/cpu_undervolt.prop | cut -d '=' -f2)
-val2=$($bbox cat /tmp/aroma/gpu_undervolt.prop | cut -d '=' -f2)
-backup=$($bbox cat /tmp/aroma/backup.prop | cut -d '=' -f2)
-
 cpu_offset=$((($val1 - 14) * 10))
-gpu_offset=$((($val2 - 23) * 10))
+
+platform_select=$($bbox cat /tmp/aroma/platform.prop | cut -d '=' -f2)
+if [ "$platform_select" = "1" ]; then
+	platform=msm8998
+	val2=$($bbox cat /tmp/aroma/gpu_undervolt.prop | cut -d '=' -f2)
+	gpu_offset=$((($val2 - 23) * 10))
+elif [ "$platform_select" = "2" ]; then
+	platform=sdm660
+fi
+backup=$($bbox cat /tmp/aroma/backup.prop | cut -d '=' -f2)
 
 $bbox touch /tmp/dtp_log
 > /tmp/dtp_log
@@ -23,12 +29,20 @@ if [ "$backup" = "1" ]; then
 	echo "Backup finished." >> /tmp/dtp_log
 fi
 
-if [ "$cpu_offset" = "0" ] && [ "$gpu_offset" = "0" ]; then
+if [ "$cpu_offset" = "0" ] && [ "$platform" = "sdm660" ]; then
+	echo "Bye-bye" >> /tmp/dtp_log
+	echo "todo_pack=0" > /tmp/aroma/need_pack.prop
+	exit 0
+elif [ "$cpu_offset" = "0" ] && [ "$gpu_offset" = "0" ] && [ "$platform" = "msm8998" ]; then
 	echo "Bye-bye" >> /tmp/dtp_log
 	echo "todo_pack=0" > /tmp/aroma/need_pack.prop
 	exit 0
 fi
-echo "CPU voltage offset: $cpu_offset mv, GPU voltage offset: $gpu_offset mv" >> /tmp/dtp_log
+echo "CPU voltage offset: $cpu_offset mv" >> /tmp/dtp_log
+if [ "$platform" = "msm8998" ]; then
+echo "GPU voltage offset: $gpu_offset mv" >> /tmp/dtp_log
+fi
+
 
 $dtp -i kernel_dtb
 if [ "$?" != "0" ]; then
@@ -67,6 +81,43 @@ esac
 # apply voltage offset!
 
 echo "- !! Undervolt ..." >> /tmp/dtp_log
+
+if [ "$platform" = "sdm660" ]; then
+$bbox cat /tmp/aroma/kernel_dtb_$i.dts | $bbox grep qcom,cpr-open-loop-voltage-fuse-adjustment > /tmp/aroma/filebuff_o
+$bbox cat /tmp/aroma/kernel_dtb_$i.dts | $bbox grep qcom,cpr-closed-loop-voltage-fuse-adjustment >> /tmp/aroma/filebuff_o
+
+cp /tmp/aroma/filebuff_o /tmp/aroma/filebuff_s
+o_line=$($bbox cat /tmp/aroma/filebuff_o | $bbox sed -e 's/[\t]*.*<//g' | $bbox sed 's/>;//g' | wc -l)
+
+j=1
+while [ $j -le $o_line ]; do
+	line=$($bbox cat /tmp/aroma/filebuff_o | $bbox awk "NR==$j")
+	open_loop_voltage_=$(echo "$line" | $bbox sed -e 's/[\t]*.*<//g' | $bbox sed 's/>;//g' | $bbox sed 's/\(0x[^ ]* \)\{5\}/&\n/g')
+	first_line=$(echo "$open_loop_voltage_" | head -n1)
+
+	loop_adjust=$(echo "$first_line" | $bbox sed 's/ $//g')
+	new_v1=$(($(echo "$loop_adjust" | $bbox awk '{print $1}') + (9 * $cpu_offset / 10) * 1000))
+	new_v2=$(($(echo "$loop_adjust" | $bbox awk '{print $2}') + (9 * $cpu_offset / 10) * 1000))
+	new_v3=$(($(echo "$loop_adjust" | $bbox awk '{print $3}') + $cpu_offset * 1000))
+	new_v4=$(($(echo "$loop_adjust" | $bbox awk '{print $4}') + $cpu_offset * 1000))
+	new_v5=$(($(echo "$loop_adjust" | $bbox awk '{print $5}') + $cpu_offset * 1000))
+	new_v=$(printf "0x%x 0x%x 0x%x 0x%x 0x%x\n" $new_v1 $new_v2 $new_v3 $new_v4 $new_v5 | $bbox sed 's/0xf\{8\}/0x/g')
+	echo "Replacing $loop_adjust with $new_v" >> /tmp/dtp_log
+	$bbox sed -i "s/$loop_adjust/$new_v/g" /tmp/aroma/filebuff_s
+	ori_line=$($bbox cat /tmp/aroma/filebuff_o | $bbox awk "NR==$j")
+	mod_line=$($bbox cat /tmp/aroma/filebuff_s | $bbox awk "NR==$j")
+	$bbox sed -i "s/$ori_line/$mod_line/g" /tmp/aroma/kernel_dtb_$i.dts
+	
+	case $? in
+	1)
+		echo "! Unable to patched kernel_dtb_$i.dts" >> /tmp/dtp_log
+		exit 1
+	;;
+	esac
+	j=$((j + 1))
+done
+
+elif [ "$platform" = "msm8998" ]; then
 gfx_cline=$($bbox cat /tmp/aroma/kernel_dtb_$i.dts | $bbox grep -n 'regulator-name = "gfx_corner";' | $bbox awk '{print $1}' | $bbox sed 's/://g')
 gfx_cline_=$(($gfx_cline + 25))
 $bbox cat /tmp/aroma/kernel_dtb_$i.dts | $bbox sed "$gfx_cline,$gfx_cline_ d" | $bbox grep qcom,cpr-open-loop-voltage-fuse-adjustment > /tmp/aroma/filebuff_o
@@ -137,6 +188,7 @@ while [ $j -le $o_line ]; do
 	esac
 	j=$((j + 1))
 done
+fi
 
 # compile dts to dtb
 $dtc -q -I dts -O dtb /tmp/aroma/kernel_dtb_$i.dts -o kernel_dtb-$i

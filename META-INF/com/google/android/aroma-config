@@ -102,6 +102,12 @@ then
 endif;
 
 selectbox(
+    "\nPlatform","<@center><b>\n<~text_platform_select>\n</b></@>","","platform.prop",
+    "msm8998", "<~text_msm8998>", 1,
+    "sdm660", "<~text_sdm660>", 0
+);
+
+selectbox(
   "\nCPU voltage offset","<@center><b>\n<~text_cpu_adjust>\n</b></@>","","cpu_undervolt.prop",
   "-130mv","<~text_dang>",0,
   "-120mv","<~text_dang>",0,
@@ -132,6 +138,7 @@ selectbox(
   "+130mv","<~text_dang>",0
 );
 
+if prop("platform.prop","selected.0")=="1" then
 selectbox(
   "\nGPU voltage offset","<@center><b>\n<~text_gpu_adjust>\n</b></@>","","gpu_undervolt.prop",
   "-220mv","<~text_dang>",0,
@@ -180,7 +187,7 @@ selectbox(
   "+210mv","<~text_dang>",0,
   "+220mv","<~text_dang>",0
 );
-
+endif;
 
 selectbox(
   "\nBackup","<@center><b>\n<~text_backup>/sdcard/bootimage</b>\n\n</@>","","backup.prop",
