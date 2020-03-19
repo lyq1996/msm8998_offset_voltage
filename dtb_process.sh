@@ -180,7 +180,7 @@ echo "device board_id: $board_id, msm_id: $msm_id"
 i=0
 while [ $i -lt $dtb_count ]; do
     $dtc -q -I dtb -O dts kernel_dtb-$i -o kernel_dtb_$i.dts
-    dts_board_id=$(cat kernel_dtb_$i.dts | grep board | sed -e 's/[\t]*qcom,board-id = <//g' | sed 's/>;//g')
+    dts_board_id=$(cat kernel_dtb_$i.dts | grep qcom,board-id | sed -e 's/[\t]*qcom,board-id = <//g' | sed 's/>;//g')
     dts_msm_id=$(cat kernel_dtb_$i.dts | grep qcom,msm-id | sed -e 's/[\t]*qcom,msm-id = <//g' | sed 's/>;//g')
     echo "kernel_dtb_$i.dts board_id: $dts_board_id, msm_id: $dts_msm_id"
     if [ "$dts_board_id" = "$board_id" ] && [ "$dts_msm_id" = "$msm_id" ]; then
