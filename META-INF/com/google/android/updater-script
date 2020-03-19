@@ -16,7 +16,7 @@ set_progress(0.2);
 ui_print("Getting current boot image...");
 run_program("/tmp/aroma/busybox", "dd", "if=/dev/block/bootdevice/by-name/boot", "of=/tmp/aroma/boot.img");
 
-ui_print("Unpacking boot image unsing magiskboot...");
+ui_print("Unpacking boot image using magiskboot...");
 #magiskboot doesn't support select output dir, so dangerous
 run_program("/tmp/aroma/magiskboot", "unpack", "/tmp/aroma/boot.img");
 
