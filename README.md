@@ -1,5 +1,4 @@
-### AROMA
-Flash in TWRP
+### Visable and Flashable tool for msm8998 undervolt offset
 
 ```
 #include <std_disclaimer.h>
@@ -15,52 +14,69 @@ Flash in TWRP
  *
  */
 ```
+### Useage
+Boot to TWRP and flash msm8998-Undervolt-Tool.zip
 
 ### build flashable zip
-zip -r9 msm8998-Undervolt-Tools.zip * -x .git README.md .gitignore dtp_src
+zip -r9 msm8998-Undervolt-Tool.zip * -x .git README.md .gitignore dtp_src
 
 ### result
-before undervolt:
+before cpu undervolt:
+```
+OnePlus5T:/ $ su -c dmesg -T | grep add_opp
+[Fri Jun 26 15:43:14 2020] [    0.453782]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu0
+[Fri Jun 26 15:43:14 2020] [    0.454379]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu0
+[Fri Jun 26 15:43:14 2020] [    0.454404]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu1
+[Fri Jun 26 15:43:14 2020] [    0.454769]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu1
+[Fri Jun 26 15:43:14 2020] [    0.454801]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu2
+[Fri Jun 26 15:43:14 2020] [    0.455156]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu2
+[Fri Jun 26 15:43:14 2020] [    0.455190]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu3
+[Fri Jun 26 15:43:14 2020] [    0.455555]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu3
+[Fri Jun 26 15:43:14 2020] [    0.455580]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu4
+[Fri Jun 26 15:43:14 2020] [    0.456101]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu4
+[Fri Jun 26 15:43:14 2020] [    0.456124]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu5
+[Fri Jun 26 15:43:14 2020] [    0.456631]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu5
+[Fri Jun 26 15:43:14 2020] [    0.456663]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu6
+[Fri Jun 26 15:43:14 2020] [    0.457181]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu6
+[Fri Jun 26 15:43:14 2020] [    0.457212]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu7
+[Fri Jun 26 15:43:14 2020] [    0.457735]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu7
+```
 
+cpu little cluster undervolt 50mv and cpu big cluster undervolt 100mv:
 ```
-# 
-[    0.440216] [    0.440200]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu0
-[    0.440810] [    0.440807]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu0
-[    0.440841] [    0.440839]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu1
-[    0.441210] [    0.441208]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu1
-[    0.441235] [    0.441233]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu2
-[    0.441607] [    0.441605]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu2
-[    0.441631] [    0.441629]@4 add_opp: Set OPP pair (300000000 Hz, 660000 uv) on cpu3
-[    0.441996] [    0.441994]@4 add_opp: Set OPP pair (1900800000 Hz, 908000 uv) on cpu3
-[    0.442028] [    0.442026]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu4
-[    0.442547] [    0.442545]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu4
-[    0.442578] [    0.442576]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu5
-[    0.443097] [    0.443095]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu5
-[    0.443120] [    0.443117]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu6
-[    0.443660] [    0.443657]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu6
-[    0.443685] [    0.443682]@4 add_opp: Set OPP pair (300000000 Hz, 656000 uv) on cpu7
-[    0.444202] [    0.444200]@4 add_opp: Set OPP pair (2457600000 Hz, 1052000 uv) on cpu7
+OnePlus5T:/ $ su -c dmesg -T | grep add_opp
+[Fri Jun 26 15:36:11 2020] [    0.453347]@4 add_opp: Set OPP pair (300000000 Hz, 616000 uv) on cpu0
+[Fri Jun 26 15:36:11 2020] [    0.453947]@4 add_opp: Set OPP pair (1900800000 Hz, 860000 uv) on cpu0
+[Fri Jun 26 15:36:11 2020] [    0.453971]@4 add_opp: Set OPP pair (300000000 Hz, 616000 uv) on cpu1
+[Fri Jun 26 15:36:11 2020] [    0.454342]@4 add_opp: Set OPP pair (1900800000 Hz, 860000 uv) on cpu1
+[Fri Jun 26 15:36:11 2020] [    0.454367]@4 add_opp: Set OPP pair (300000000 Hz, 616000 uv) on cpu2
+[Fri Jun 26 15:36:11 2020] [    0.454733]@4 add_opp: Set OPP pair (1900800000 Hz, 860000 uv) on cpu2
+[Fri Jun 26 15:36:11 2020] [    0.454767]@4 add_opp: Set OPP pair (300000000 Hz, 616000 uv) on cpu3
+[Fri Jun 26 15:36:11 2020] [    0.455142]@4 add_opp: Set OPP pair (1900800000 Hz, 860000 uv) on cpu3
+[Fri Jun 26 15:36:11 2020] [    0.455166]@4 add_opp: Set OPP pair (300000000 Hz, 568000 uv) on cpu4
+[Fri Jun 26 15:36:11 2020] [    0.455692]@4 add_opp: Set OPP pair (2457600000 Hz, 952000 uv) on cpu4
+[Fri Jun 26 15:36:11 2020] [    0.455714]@4 add_opp: Set OPP pair (300000000 Hz, 568000 uv) on cpu5
+[Fri Jun 26 15:36:11 2020] [    0.456237]@4 add_opp: Set OPP pair (2457600000 Hz, 952000 uv) on cpu5
+[Fri Jun 26 15:36:11 2020] [    0.456269]@4 add_opp: Set OPP pair (300000000 Hz, 568000 uv) on cpu6
+[Fri Jun 26 15:36:11 2020] [    0.456793]@4 add_opp: Set OPP pair (2457600000 Hz, 952000 uv) on cpu6
+[Fri Jun 26 15:36:11 2020] [    0.456825]@4 add_opp: Set OPP pair (300000000 Hz, 568000 uv) on cpu7
+[Fri Jun 26 15:36:11 2020] [    0.457349]@4 add_opp: Set OPP pair (2457600000 Hz, 952000 uv) on cpu7
 ```
-after undervolt 90mv:
+
+before GPU undervolt:
 ```
-[    0.454104] [    0.454088]@4 add_opp: Set OPP pair (300000000 Hz, 580000 uv) on cpu0
-[    0.454723] [    0.454720]@4 add_opp: Set OPP pair (1900800000 Hz, 820000 uv) on cpu0
-[    0.454756] [    0.454753]@4 add_opp: Set OPP pair (300000000 Hz, 580000 uv) on cpu1
-[    0.455132] [    0.455130]@4 add_opp: Set OPP pair (1900800000 Hz, 820000 uv) on cpu1
-[    0.455157] [    0.455154]@4 add_opp: Set OPP pair (300000000 Hz, 580000 uv) on cpu2
-[    0.455525] [    0.455523]@4 add_opp: Set OPP pair (1900800000 Hz, 820000 uv) on cpu2
-[    0.455548] [    0.455546]@4 add_opp: Set OPP pair (300000000 Hz, 580000 uv) on cpu3
-[    0.455914] [    0.455911]@4 add_opp: Set OPP pair (1900800000 Hz, 820000 uv) on cpu3
-[    0.455948] [    0.455946]@4 add_opp: Set OPP pair (300000000 Hz, 576000 uv) on cpu4
-[    0.456461] [    0.456459]@4 add_opp: Set OPP pair (2457600000 Hz, 960000 uv) on cpu4
-[    0.456494] [    0.456492]@4 add_opp: Set OPP pair (300000000 Hz, 576000 uv) on cpu5
-[    0.457025] [    0.457023]@4 add_opp: Set OPP pair (2457600000 Hz, 960000 uv) on cpu5
-[    0.457052] [    0.457050]@4 add_opp: Set OPP pair (300000000 Hz, 576000 uv) on cpu6
-[    0.457572] [    0.457570]@4 add_opp: Set OPP pair (2457600000 Hz, 960000 uv) on cpu6
-[    0.457598] [    0.457596]@4 add_opp: Set OPP pair (300000000 Hz, 576000 uv) on cpu7
-[    0.458135] [    0.458133]@4 add_opp: Set OPP pair (2457600000 Hz, 960000 uv) on cpu7
+OnePlus5T:/ $ su -c dmesg -T | grep gfx3d_clk_src
+[Fri Jun 26 15:15:13 2020] gfx3d_clk_src: set OPP pair(180000000 Hz: 656000 uV) on 5000000.qcom,kgsl-3d0
+[Fri Jun 26 15:15:13 2020] gfx3d_clk_src: set OPP pair(710000000 Hz: 964000 uV) on 5000000.qcom,kgsl-3d0
+```
+
+after GPU undervolt 200mv:
+```
+OnePlus5T:/ $ su -c dmesg -T | grep gfx3d_clk_src
+[Fri Jun 26 15:43:14 2020] gfx3d_clk_src: set OPP pair(180000000 Hz: 556000 uV) on 5000000.qcom,kgsl-3d0
+[Fri Jun 26 15:43:14 2020] gfx3d_clk_src: set OPP pair(710000000 Hz: 764000 uV) on 5000000.qcom,kgsl-3d0
 ```
 
 ### special thanks
 * [asto18089](https://github.com/asto18089)
-* 南昌狗头人(coolapk)
+* [南昌狗头人](https://github.com/aa889788)

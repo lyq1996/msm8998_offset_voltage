@@ -5,10 +5,10 @@
 
 <*> Please exit immediately if your device is A/B boot slot</*>
 
-<*> Select the value you need to increase or decrease voltage on the next page </*>
+<*> Select the voltage offset value you need to increase or decrease on the next page </*>
 
-<*> If backup boot is selected, the tool will backup your current boot to /sdcard/bootimage/, unlike kernel, it is a complete boot partition image 
-For all effects brought by the tool, can be Flash this boot backup in TWRP to eliminate</*>
+<*> If backup boot is selected, the tool will backup your current boot image to /sdcard/bootimage/, unlike kernel, it is a complete boot partition image 
+For all effects brought by the tool, can be eliminate by restore this backup in TWRP </*>
 
 <*> Please remember the voltage you increased or decreased</*>
 
