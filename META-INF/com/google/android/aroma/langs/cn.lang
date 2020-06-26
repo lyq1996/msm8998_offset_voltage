@@ -92,5 +92,6 @@ text_fin=完成
 text_insfin=安装完成
 text_reboot=请重启
 text_insfail=安装失败
-text_cpu_adjust=CPU电压调节
+text_cpu_big_adjust=CPU大核心电压调节
+text_cpu_little_adjust=CPU小核心电压调节
 text_gpu_adjust=GPU电压调节

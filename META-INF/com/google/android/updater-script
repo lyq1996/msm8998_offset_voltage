@@ -31,7 +31,7 @@ ui_print("Patched done.");
 
 set_progress(0.7);
 if
-    file_getprop("/tmp/aroma/need_pack.prop","todo_pack") == "1"
+    file_getprop("/tmp/aroma/status.prop","error_status") == "1"
 then
     ui_print("Repacking boot...");
     run_program("/tmp/aroma/magiskboot", "repack", "/tmp/aroma/boot.img");
@@ -39,7 +39,7 @@ then
     run_program("/tmp/aroma/busybox", "dd", "if=new-boot.img", "of=/dev/block/bootdevice/by-name/boot");
 endif;
 if
-    file_getprop("/tmp/aroma/need_pack.prop","todo_pack") == "2"
+    file_getprop("/tmp/aroma/status.prop","error_status") == "2"
 then
     ui_print("Something goes wrong, please contact me with your log file /tmp/dtp_log.");
 endif;

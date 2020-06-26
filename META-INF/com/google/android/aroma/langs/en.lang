@@ -95,5 +95,6 @@ text_fin=Finish
 text_insfin=Installation Completed
 text_reboot=please reboot
 text_insfail=Installation Failed
-text_cpu_adjust=Select CPU voltage offset
+text_cpu_big_adjust=CPU High Cluster Voltage Offset
+text_cpu_little_adjust=CPU LITTLE Cluster Voltage Offset
 text_gpu_adjust=Select GPU voltage offset

@@ -16,9 +16,9 @@
 #
 ###
 
-ini_set("rom_version",          "1.0");
+ini_set("rom_version",          "1.1");
 ini_set("rom_author",          "lyq1996");
-ini_set("rom_date",             "Mar 5, 2020");
+ini_set("rom_date",             "June 26, 2020");
 
 ini_set("force_colorspace","rgba");
 
@@ -102,7 +102,7 @@ then
 endif;
 
 selectbox(
-  "\nCPU voltage offset","<@center><b>\n<~text_cpu_adjust>\n</b></@>","","cpu_undervolt.prop",
+  "\nCPU High Cluster Voltage Offset","<@center><b>\n<~text_cpu_big_adjust>\n</b></@>","","cpu_big_undervolt.prop",
   "-130mv","<~text_dang>",0,
   "-120mv","<~text_dang>",0,
   "-110mv","",0,
@@ -130,6 +130,41 @@ selectbox(
   "+110mv","",0,
   "+120mv","<~text_dang>",0,
   "+130mv","<~text_dang>",0
+);
+
+selectbox(
+  "\nCPU LITTLE Cluster Voltage Offset","<@center><b>\n<~text_cpu_little_adjust>\n</b></@>","","cpu_little_undervolt.prop",
+  "-150mv","<~text_dang>",0,
+  "-140mv","<~text_dang>",0,
+  "-130mv","<~text_dang>",0,
+  "-120mv","<~text_dang>",0,
+  "-110mv","",0,
+  "-100mv","",0,
+  "-90mv","",0,
+  "-80mv","",0,
+  "-70mv","",0,
+  "-60mv","",0,
+  "-50mv","",0,
+  "-40mv","",0,
+  "-30mv","",0,
+  "-20mv","",0,
+  "-10mv","",0,
+  "0mv","<~text_keep>",1,
+  "+10mv","",0,
+  "+20mv","",0,
+  "+30mv","",0,
+  "+40mv","",0,
+  "+50mv","",0,
+  "+60mv","",0,
+  "+70mv","",0,
+  "+80mv","",0,
+  "+90mv","",0,
+  "+100mv","",0,
+  "+110mv","",0,
+  "+120mv","<~text_dang>",0,
+  "+130mv","<~text_dang>",0,
+  "+140mv","<~text_dang>",0,
+  "+150mv","<~text_dang>",0
 );
 
 selectbox(
